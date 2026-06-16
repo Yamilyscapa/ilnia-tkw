@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev --listen 3001",
-    "build": "vercel build",
-    "deploy": "vercel deploy",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
