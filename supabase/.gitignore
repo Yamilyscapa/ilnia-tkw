@@ -2,6 +2,9 @@
 .branches
 .temp
 
+# JWT signing keys (per-env secrets; generate with scripts/gen-keys.sh)
+keys/
+
 # dotenvx
 .env.keys
 .env.local
