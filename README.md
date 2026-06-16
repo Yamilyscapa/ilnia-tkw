@@ -1,159 +1,71 @@
-# Turborepo starter
+# ilina-tkw
 
-This Turborepo starter is maintained by the Turborepo core team.
+A React Native prototype that securely shows environment-specific feature flags
+based on a user's account status. Runs **entirely locally** — Supabase CLI for
+the DB + auth, Vercel CLI for the API. Staging and Production are fully isolated.
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```
+mobile (Expo)  ──►  Vercel edge API  ──►  Supabase (Postgres + Auth)
+                    business logic         data + identity, RLS-gated
 ```
 
-## What's inside?
+- **Supabase** owns the database and auth. Row-Level Security decides which flags
+  a user may read — unauthorized reads/writes are rejected at the DB layer.
+- **Vercel edge functions** are the backend: they verify the caller's token and
+  serve flags. They never bypass RLS for user reads.
+- **Mobile** signs in via the Supabase SDK, persists the session in the device
+  keychain, and calls the API through a typed client.
 
-This Turborepo includes the following packages/apps:
+## Environments
 
-### Apps and Packages
+Staging and Production are two independent local stacks — separate containers,
+data, ports, and **JWT signing keys** (a staging token is rejected by prod).
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+| | Staging | Production |
+| --- | --- | --- |
+| Supabase API / DB | `54321` / `54322` | `55321` / `55322` |
+| Vercel API | `localhost:3001` | `localhost:3002` |
+| Demo user | `user@staging.com` | `user@prod.com` |
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+The app picks its target from `APP_ENV` at build time (`app.config.ts`).
 
-### Utilities
+## Prerequisites
 
-This Turborepo has some additional tools already setup for you:
+- Docker running (Supabase local stack)
+- Node 18+, pnpm
+- `vercel login` once (the API runs via `vercel dev`)
+- iOS Simulator / Xcode (the app uses native modules)
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
+## Quickstart
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+make setup            # deps → signing keys → both stacks → env files → demo users
+make api-staging      # terminal 2 — vercel dev on :3001
+make ios-staging      # terminal 3 — first run only (builds the dev client)
+make mobile-staging   # thereafter — fast-refresh dev server
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Sign in with `user@staging.com` / `Password123!`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Production is symmetric: `make api-prod`, `make ios-prod`, `make mobile-prod`.
 
-```sh
-turbo build --filter=docs
-```
+Run `make` to list every command.
 
-Without global `turbo`:
+## How the pieces fit
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+| Concern | Where |
+| --- | --- |
+| Schema + RLS | `supabase/migrations/` |
+| Per-env data | `supabase/seeds/{staging,production}.sql` |
+| One config, two stacks | `supabase/config.toml` (env-parameterized) + `supabase/.env.*` |
+| Signing keys (gitignored) | `scripts/gen-keys.sh` → `supabase/keys/` |
+| API endpoints | `apps/api/api/{health,me,flags}.ts` |
+| Mobile client | `apps/mobile/src/lib/{supabase,api}.ts` |
+| Orchestration | `Makefile` + `scripts/` |
 
-### Develop
+## Notes
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- `apps/api/.env.*` and `apps/mobile/.env.local` are generated (keys derive from
+  the gitignored signing keys), never committed. `make env-sync` regenerates them.
+- `make reset` re-applies migrations + seeds on both DBs.
+- `make down` stops both stacks.
