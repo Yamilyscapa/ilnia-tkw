@@ -15,6 +15,14 @@ create table public.profiles (
 -- Lock the table down: nobody reaches it without an explicit policy.
 alter table public.profiles enable row level security;
 
+-- Base privilege for signed-in users. RLS still restricts which rows they see;
+-- this just lets the authenticated role touch the table at all.
+grant select on public.profiles to authenticated;
+
+-- The backend's service_role manages tier changes; it bypasses RLS but still
+-- needs the table grant.
+grant all on public.profiles to service_role;
+
 -- A user may read their own profile, and nothing else.
 create policy "profiles_select_own"
   on public.profiles for select

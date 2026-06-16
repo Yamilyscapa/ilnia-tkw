@@ -16,6 +16,12 @@ create table public.feature_flags (
 
 alter table public.feature_flags enable row level security;
 
+-- Base privilege for signed-in users; the policy below does the real gating.
+grant select on public.feature_flags to authenticated;
+
+-- Backend manages flags via service_role (bypasses RLS, still needs the grant).
+grant all on public.feature_flags to service_role;
+
 -- A flag is visible only when it's enabled and the caller clears every gate it
 -- sets. An ungated flag (both false) is visible to any signed-in user; a gated
 -- flag checks the caller's profile.
