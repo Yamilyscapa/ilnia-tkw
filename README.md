@@ -47,7 +47,16 @@ make mobile-staging   # thereafter — fast-refresh dev server
 
 Sign in with `user@staging.com` / `Password123!`.
 
-Production is symmetric: `make api-prod`, `make ios-prod`, `make mobile-prod`.
+Production is symmetric (different ports + user):
+
+```sh
+make api-prod         # vercel dev on :3002
+make ios-prod         # first run only
+make mobile-prod      # thereafter
+```
+
+Sign in with `user@prod.com` / `Password123!`. `make setup` already prepared both
+stacks, so no extra setup is needed to switch environments.
 
 Run `make` to list every command.
 
