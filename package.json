@@ -16,7 +16,9 @@
     "db:prod:reset": "./scripts/sb.sh production db reset",
     "db:prod:stop": "./scripts/sb.sh production stop",
     "api:staging": "./scripts/api.sh staging",
-    "api:prod": "./scripts/api.sh production"
+    "api:prod": "./scripts/api.sh production",
+    "mobile:staging": "./scripts/mobile.sh staging",
+    "mobile:prod": "./scripts/mobile.sh production"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

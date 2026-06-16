@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Redirect } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,14 +8,25 @@ import { PrimaryButton } from "@/components/primary-button";
 import { TextField } from "@/components/text-field";
 import { env } from "@/config/env";
 import { theme } from "@/config/theme";
+import { useSession } from "@/hooks/use-session";
+import { supabase } from "@/lib/supabase";
 
 export default function SignInScreen() {
+  const { session, loading } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function onSignIn() {
-    // TODO: sign in via Supabase Auth + persist session, then route on success.
-    router.replace("/flags");
+  if (!loading && session) return <Redirect href="/flags" />;
+
+  async function onSignIn() {
+    setError(null);
+    setSubmitting(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setSubmitting(false);
+    if (error) setError(error.message);
+    // On success, the session listener routes to /flags via the guard above.
   }
 
   return (
@@ -54,7 +65,16 @@ export default function SignInScreen() {
             onChangeText={setPassword}
             secure
           />
-          <PrimaryButton testID="signin-button" label="Sign in" onPress={onSignIn} />
+          {error ? (
+            <Text testID="signin-error" style={{ color: "#DC2626", fontSize: 14 }}>
+              {error}
+            </Text>
+          ) : null}
+          <PrimaryButton
+            testID="signin-button"
+            label={submitting ? "Signing in…" : "Sign in"}
+            onPress={onSignIn}
+          />
         </View>
 
         <Text
