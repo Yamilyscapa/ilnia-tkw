@@ -18,7 +18,9 @@
     "api:staging": "./scripts/api.sh staging",
     "api:prod": "./scripts/api.sh production",
     "mobile:staging": "./scripts/mobile.sh staging",
-    "mobile:prod": "./scripts/mobile.sh production"
+    "mobile:prod": "./scripts/mobile.sh production",
+    "seed:staging": "./scripts/seed-user.sh staging",
+    "seed:prod": "./scripts/seed-user.sh production"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
