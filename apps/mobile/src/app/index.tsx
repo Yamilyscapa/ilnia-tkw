@@ -80,13 +80,23 @@ export default function SignInScreen() {
         <Text
           style={{
             marginTop: "auto",
-            marginBottom: 12,
             textAlign: "center",
             fontSize: 13,
             color: theme.muted,
           }}
         >
           {env.apiUrl}
+        </Text>
+        <Text
+          style={{
+            marginTop: 8,
+            marginBottom: 12,
+            textAlign: "center",
+            fontSize: 13,
+            color: theme.muted,
+          }}
+        >
+          Developer: Yamil Yscapa
         </Text>
       </View>
     </SafeAreaView>
