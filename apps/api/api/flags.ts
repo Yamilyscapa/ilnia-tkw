@@ -9,7 +9,7 @@ export default async function handler(req: Request): Promise<Response> {
   if (!token) return json({ error: "unauthorized" }, 401);
 
   const supabase = userClient(token);
-  const { data: auth } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getUser(token);
 
   if (!auth.user) return json({ error: "unauthorized" }, 401);
 

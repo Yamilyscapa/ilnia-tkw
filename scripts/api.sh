@@ -32,5 +32,9 @@ set -a
 source "$ENV_FILE"
 set +a
 
+# vercel dev loads .env.local with highest precedence; write the chosen env there
+# so it can't be shadowed by a stale .env.
+cp "$ENV_FILE" "$ROOT/apps/api/.env.local"
+
 cd "$ROOT/apps/api"
 exec vercel dev --listen "$PORT" "$@"

@@ -13,7 +13,7 @@ export async function getUser(req: Request): Promise<User | null> {
 
   if (!token) return null;
 
-  const { data, error } = await userClient(token).auth.getUser();
+  const { data, error } = await userClient(token).auth.getUser(token);
 
   if (error || !data.user) return null;
 
