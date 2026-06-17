@@ -1,8 +1,22 @@
 # ilina-tkw
 
 A React Native prototype that securely shows environment-specific feature flags
-based on a user's account status. Runs **entirely locally** — Supabase CLI for
-the DB + auth, Vercel CLI for the API. Staging and Production are fully isolated.
+based on a user's account status.
+
+## Walkthrough
+
+I built this to mirror a real multi-environment setup, but entirely on my
+machine. I use **Vercel** and **Supabase** in their local flavors to simulate the
+Staging and Production environments you'd have in production: same code, two
+isolated backends. A script boots both in **parallel** as separate simulated
+environments (distinct projects, ports, data, and JWT signing keys), so I can
+run staging and prod side by side without one touching the other.
+
+The same idea carries into the **Expo** mobile app: a build targets one
+environment and talks only to that environment's API and database. The whole
+flow (spinning up the environments, wiring the per-env config, seeding data, and
+running the app) is driven by a **Makefile**, so it's one command to stand up and
+reproducible from a clean checkout.
 
 ```
 mobile (Expo)  ──►  Vercel edge API  ──►  Supabase (Postgres + Auth)
@@ -10,7 +24,7 @@ mobile (Expo)  ──►  Vercel edge API  ──►  Supabase (Postgres + Auth)
 ```
 
 - **Supabase** owns the database and auth. Row-Level Security decides which flags
-  a user may read — unauthorized reads/writes are rejected at the DB layer.
+  a user may read; unauthorized reads/writes are rejected at the DB layer.
 - **Vercel edge functions** are the backend: they verify the caller's token and
   serve flags. They never bypass RLS for user reads.
 - **Mobile** signs in via the Supabase SDK, persists the session in the device
@@ -18,7 +32,7 @@ mobile (Expo)  ──►  Vercel edge API  ──►  Supabase (Postgres + Auth)
 
 ## Environments
 
-Staging and Production are two independent local stacks — separate containers,
+Staging and Production are two independent local stacks: separate containers,
 data, ports, and **JWT signing keys** (a staging token is rejected by prod).
 
 | | Staging | Production |
@@ -31,7 +45,7 @@ The app picks its target from `APP_ENV` at build time (`app.config.ts`).
 
 ### Environment is baked at build time
 
-`APP_ENV` is read when the native app is built, not when metro starts — the
+`APP_ENV` is read when the native app is built, not when metro starts. The
 debug build embeds the config (API/DB targets) and the Supabase session is keyed
 per environment. So to switch the app between environments you **rebuild**, you
 don't just restart metro:
@@ -43,36 +57,28 @@ Both use the same bundle id, so installing one replaces the other on a simulator
 `make mobile-staging` / `mobile-prod` only run the fast-refresh dev server for an
 app already built for that env.
 
-## Prerequisites
+## Try it locally
 
-- Docker running (Supabase local stack)
-- Node 18+, pnpm
-- `vercel login` once (the API runs via `vercel dev`)
-- iOS Simulator / Xcode (the app uses native modules)
+**Prereqs:** Docker running · `vercel login` (once) · Xcode iOS Simulator.
 
-## Quickstart
+Three commands, three terminals:
 
 ```sh
-make setup            # deps → signing keys → both stacks → env files → demo users
-make api-staging      # terminal 2 — vercel dev on :3001
-make ios-staging      # terminal 3 — first run only (builds the dev client)
-make mobile-staging   # thereafter — fast-refresh dev server
+make setup          # one-time: both stacks + per-env config + demo users
+make api-staging    # terminal 2: backend on :3001
+make ios-staging    # terminal 3: builds and launches the app
 ```
 
-Sign in with `user@staging.com` / `Password123!`.
+Sign in with **`user@staging.com`** / **`Password123!`** → you land on the flags
+list for staging.
 
-Production is symmetric (different ports + user):
+**Switch to production** in fresh terminals (`make api-prod`, then `make
+ios-prod`), then sign in with **`user@prod.com`** / **`Password123!`**. You'll see
+a different flag set: that's the environment toggle. (`make setup` already
+prepared both environments, so there's nothing else to run.)
 
-```sh
-make api-prod         # vercel dev on :3002
-make ios-prod         # first run only
-make mobile-prod      # thereafter
-```
-
-Sign in with `user@prod.com` / `Password123!`. `make setup` already prepared both
-stacks, so no extra setup is needed to switch environments.
-
-Run `make` to list every command.
+Run `make` to list every command. After the first build, `make mobile-staging` /
+`mobile-prod` is the faster fast-refresh dev server.
 
 ## End-to-end tests
 
