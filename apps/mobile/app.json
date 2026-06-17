@@ -9,10 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.ilinatkw.mobile"
+      "bundleIdentifier": "com.ilniatkw.mobile"
     },
     "android": {
-      "package": "com.ilinatkw.mobile",
+      "package": "com.ilniatkw.mobile",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

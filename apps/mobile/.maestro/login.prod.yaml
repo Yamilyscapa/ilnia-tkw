@@ -1,7 +1,7 @@
 # E2E: production login shows a different config than staging.
 # Preconditions: prod stack + API up, demo user seeded, app running production
 # (make db-prod / api-prod / mobile-prod, make seed).
-appId: com.ilinatkw.mobile
+appId: com.ilniatkw.mobile
 ---
 - launchApp:
     clearState: true

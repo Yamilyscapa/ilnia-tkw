@@ -1,4 +1,4 @@
-# ilina-tkw
+# ilnia-tkw
 
 A React Native prototype that securely shows environment-specific feature flags
 based on a user's account status.

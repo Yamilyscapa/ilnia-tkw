@@ -1,5 +1,5 @@
 {
-  "name": "ilina-tkw",
+  "name": "ilnia-tkw",
   "private": true,
   "scripts": {
     "build": "turbo run build",

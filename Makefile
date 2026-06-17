@@ -1,4 +1,4 @@
-# ilina-tkw — local dev orchestration.
+# ilnia-tkw local dev orchestration
 #
 # Prerequisites: Docker running, plus `vercel login` once (for the API).
 # Quickstart:
