@@ -29,6 +29,20 @@ data, ports, and **JWT signing keys** (a staging token is rejected by prod).
 
 The app picks its target from `APP_ENV` at build time (`app.config.ts`).
 
+### Environment is baked at build time
+
+`APP_ENV` is read when the native app is built, not when metro starts — the
+debug build embeds the config (API/DB targets) and the Supabase session is keyed
+per environment. So to switch the app between environments you **rebuild**, you
+don't just restart metro:
+
+- `make ios-staging` → installs the staging app (talks to `:3001` / `:54321`)
+- `make ios-prod` → installs the prod app (talks to `:3002` / `:55321`)
+
+Both use the same bundle id, so installing one replaces the other on a simulator.
+`make mobile-staging` / `mobile-prod` only run the fast-refresh dev server for an
+app already built for that env.
+
 ## Prerequisites
 
 - Docker running (Supabase local stack)
