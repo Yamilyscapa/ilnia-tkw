@@ -1,0 +1,38 @@
+# E2E: staging login shows the staging-specific, RLS-gated flags.
+# Preconditions: staging stack + API up, demo user seeded, app running staging
+# (make db-staging / api-staging / mobile-staging, make seed).
+appId: com.ilinatkw.mobile
+---
+- launchApp:
+    clearState: true
+# A prior session lives in the keychain (survives clearState); sign out if so.
+- runFlow:
+    when:
+      visible:
+        id: "signout-button"
+    commands:
+      - tapOn:
+          id: "signout-button"
+- assertVisible: "Sign in"
+
+- tapOn:
+    id: "email-input"
+- inputText: "user@staging.com"
+- assertVisible: "user@staging.com" # confirm the field took the text
+
+- tapOn:
+    id: "password-input"
+- inputText: "Password123!"
+
+- tapOn:
+    id: "signin-button"
+
+# Flags screen renders config returned by the backend for this env + user.
+- extendedWaitUntil:
+    visible:
+      id: "flag-new_ui" # staging-only flag
+    timeout: 15000
+- assertVisible:
+    id: "flag-premium_reports" # premium-gated, visible to the demo user
+- assertVisible:
+    id: "flag-beta_chat" # beta-gated, enabled in staging

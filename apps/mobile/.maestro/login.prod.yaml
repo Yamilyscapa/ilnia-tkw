@@ -1,0 +1,39 @@
+# E2E: production login shows a different config than staging.
+# Preconditions: prod stack + API up, demo user seeded, app running production
+# (make db-prod / api-prod / mobile-prod, make seed).
+appId: com.ilinatkw.mobile
+---
+- launchApp:
+    clearState: true
+# A prior session lives in the keychain (survives clearState); sign out if so.
+- runFlow:
+    when:
+      visible:
+        id: "signout-button"
+    commands:
+      - tapOn:
+          id: "signout-button"
+- assertVisible: "Sign in"
+
+- tapOn:
+    id: "email-input"
+- inputText: "user@prod.com"
+- assertVisible: "user@prod.com"
+
+- tapOn:
+    id: "password-input"
+- inputText: "Password123!"
+
+- tapOn:
+    id: "signin-button"
+
+# Wait until the flags have actually loaded (a shared flag is present)...
+- extendedWaitUntil:
+    visible:
+      id: "flag-premium_reports"
+    timeout: 15000
+# ...then the staging-only flag and the prod-disabled beta flag must be absent.
+- assertNotVisible:
+    id: "flag-new_ui"
+- assertNotVisible:
+    id: "flag-beta_chat"

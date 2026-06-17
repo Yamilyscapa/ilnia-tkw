@@ -60,6 +60,24 @@ stacks, so no extra setup is needed to switch environments.
 
 Run `make` to list every command.
 
+## End-to-end tests
+
+[Maestro](https://maestro.mobile.dev) drives the real app: launch → login →
+assert the UI reflects the backend config for that environment.
+
+```sh
+curl -Ls "https://get.maestro.mobile.dev" | bash   # once
+
+# with the staging app running (db-staging + api-staging + mobile-staging + seed):
+make e2e-staging   # asserts new_ui + premium_reports + beta_chat are shown
+
+# with the prod app running (db-prod + api-prod + mobile-prod):
+make e2e-prod      # asserts new_ui + beta_chat are NOT shown
+```
+
+Each flow targets the env the app was started with (env is baked when metro
+starts). Flows live in `apps/mobile/.maestro/`.
+
 ## How the pieces fit
 
 | Concern | Where |
@@ -71,6 +89,7 @@ Run `make` to list every command.
 | API endpoints | `apps/api/api/{health,me,flags}.ts` |
 | Mobile client | `apps/mobile/src/lib/{supabase,api}.ts` |
 | Orchestration | `Makefile` + `scripts/` |
+| E2E flows | `apps/mobile/.maestro/` |
 
 ## Notes
 

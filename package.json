@@ -20,7 +20,9 @@
     "mobile:staging": "./scripts/mobile.sh staging",
     "mobile:prod": "./scripts/mobile.sh production",
     "seed:staging": "./scripts/seed-user.sh staging",
-    "seed:prod": "./scripts/seed-user.sh production"
+    "seed:prod": "./scripts/seed-user.sh production",
+    "e2e:staging": "./scripts/e2e.sh staging",
+    "e2e:prod": "./scripts/e2e.sh production"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

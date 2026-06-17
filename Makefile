@@ -10,7 +10,8 @@
 
 .PHONY: help setup install keys up down reset env-sync seed \
         db-staging db-prod api-staging api-prod \
-        mobile-staging mobile-prod ios-staging ios-prod
+        mobile-staging mobile-prod ios-staging ios-prod \
+        e2e-staging e2e-prod
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -65,3 +66,8 @@ ios-staging: ## Build + install the dev client (staging) — first run / native 
 	./scripts/mobile.sh staging run:ios
 ios-prod: ## Build + install the dev client (prod)
 	./scripts/mobile.sh production run:ios
+
+e2e-staging: ## Run the Maestro E2E flow against staging
+	./scripts/e2e.sh staging
+e2e-prod: ## Run the Maestro E2E flow against prod
+	./scripts/e2e.sh production
