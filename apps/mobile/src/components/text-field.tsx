@@ -2,11 +2,12 @@ import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import { Pressable, TextInput, View, type TextInputProps } from "react-native";
 
-import { theme } from "@/config/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 type Props = TextInputProps & { secure?: boolean };
 
 export function TextField({ secure, ...rest }: Props) {
+  const { theme } = useTheme();
   const [hidden, setHidden] = useState(true);
 
   return (

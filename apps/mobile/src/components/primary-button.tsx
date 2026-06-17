@@ -1,6 +1,6 @@
 import { Pressable, Text } from "react-native";
 
-import { theme } from "@/config/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 type Props = {
   label: string;
@@ -10,6 +10,7 @@ type Props = {
 };
 
 export function PrimaryButton({ label, onPress, variant = "primary", testID }: Props) {
+  const { theme } = useTheme();
   const primary = variant === "primary";
 
   return (

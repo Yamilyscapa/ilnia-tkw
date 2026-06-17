@@ -7,11 +7,12 @@ import { Pill } from "@/components/pill";
 import { PrimaryButton } from "@/components/primary-button";
 import { TextField } from "@/components/text-field";
 import { env } from "@/config/env";
-import { theme } from "@/config/theme";
 import { useSession } from "@/hooks/use-session";
+import { useTheme } from "@/hooks/use-theme";
 import { supabase } from "@/lib/supabase";
 
 export default function SignInScreen() {
+  const { theme } = useTheme();
   const { session, loading } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

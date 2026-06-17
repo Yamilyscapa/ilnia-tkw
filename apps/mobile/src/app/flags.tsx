@@ -1,13 +1,14 @@
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Pill } from "@/components/pill";
 import { PrimaryButton } from "@/components/primary-button";
 import { env } from "@/config/env";
-import { gateColor, theme } from "@/config/theme";
+import { gateColor } from "@/config/theme";
 import { useSession } from "@/hooks/use-session";
+import { useTheme } from "@/hooks/use-theme";
 import { api, type Flag } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
@@ -23,6 +24,7 @@ function gateOf(flag: Flag): keyof typeof gateColor | null {
 }
 
 export default function FlagsScreen() {
+  const { theme, isDark, setDark } = useTheme();
   const { session, loading: sessionLoading } = useSession();
   const [flags, setFlags] = useState<Flag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +73,7 @@ export default function FlagsScreen() {
           >
             {flags.map((flag) => {
               const gate = gateOf(flag);
+              const isDarkMode = flag.key === "dark_mode";
               return (
                 <View
                   key={flag.key}
@@ -83,15 +86,41 @@ export default function FlagsScreen() {
                     gap: 6,
                   }}
                 >
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                    <Text
-                      testID={`flag-${flag.key}`}
-                      style={{ fontSize: 16, fontWeight: "700", color: theme.text }}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 10,
+                        flexShrink: 1,
+                      }}
                     >
-                      {formatFlagKey(flag.key)}
-                    </Text>
-                    {gate ? (
-                      <Pill label={gate.toUpperCase()} color={gateColor[gate]} />
+                      <Text
+                        testID={`flag-${flag.key}`}
+                        style={{ fontSize: 16, fontWeight: "700", color: theme.text }}
+                      >
+                        {formatFlagKey(flag.key)}
+                      </Text>
+                      {gate ? (
+                        <Pill label={gate.toUpperCase()} color={gateColor[gate]} />
+                      ) : null}
+                    </View>
+                    {isDarkMode ? (
+                      <Switch
+                        testID="dark-mode-switch"
+                        value={isDark}
+                        onValueChange={setDark}
+                        trackColor={{ false: theme.muted, true: theme.accent }}
+                        thumbColor="#FFFFFF"
+                        ios_backgroundColor={theme.muted}
+                      />
                     ) : null}
                   </View>
                   {flag.description ? (
